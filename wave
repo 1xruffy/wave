@@ -824,7 +824,7 @@ function KeySystem:CreateUI()
     self.mainFrame = mf
 
     task.spawn(function()
-        wait(0.1)
+        task.wait(0.1)
         mf:TweenSize(UDim2.new(0,420,0,340), "Out", "Back", 0.35, true)
     end)
 
@@ -834,14 +834,14 @@ function KeySystem:CreateUI()
         ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25))
     }
 
-    -- optional audio feedback
+    -- optional audio feedback (wrapped in pcall for safety)
     local successSound = Instance.new("Sound", mf)
-    successSound.SoundId = "rbxassetid://142376088" -- pleasant chime
+    pcall(function() successSound.SoundId = "rbxassetid://1435819337" end) -- success chime
     successSound.Volume = 0.7
     self.successSound = successSound
 
     local errorSound = Instance.new("Sound", mf)
-    errorSound.SoundId = "rbxassetid://15666462" -- short beep
+    pcall(function() errorSound.SoundId = "rbxassetid://4667987027" end) -- error beep
     errorSound.Volume = 0.7
     self.errorSound = errorSound
 
@@ -983,17 +983,25 @@ end
 
 function KeySystem:showStatus(msg, col, sound)
     local s = self.statusLabel
+    if not s then return end
     s.Text = msg
     s.TextColor3 = col
-    s.TextTransparency = 1
-    s:TweenTextTransparency(0, "Out", "Quad", 0.2, true)
+    s.TextTransparency = 0
+    
     if sound == "success" and self.successSound then
-        self.successSound:Play()
+        pcall(function() self.successSound:Play() end)
     elseif sound == "error" and self.errorSound then
-        self.errorSound:Play()
+        pcall(function() self.errorSound:Play() end)
     end
-    delay(2, function()
-        s:TweenTextTransparency(1, "Out", "Quad", 0.4, true)
+    
+    task.delay(2, function()
+        if s and s.Parent then
+            s:TweenSize(UDim2.new(0.8, 0, 0, 0), "Out", "Quad", 0.4, true, function()
+                s.Text = ""
+                s.TextTransparency = 1
+                s:TweenSize(UDim2.new(0.8, 0, 0, 40), "Out", "Quad", 0, true)
+            end)
+        end
     end)
 end
 
@@ -1013,42 +1021,53 @@ end
 
 function KeySystem:CheckKey()
     if self.locked then return end
+    if self.checking then return end
+    
     local entered = self.keyBox.Text:upper():gsub("%s+","")
     if entered == "" then
         self:showStatus("Please enter a key.", Config.KeySystem.ErrorColor)
         return
     end
 
+    self.checking = true
     self:animateButton("loading")
     task.wait(0.3)
 
     if ValidKeySet[entered] then
         self:showStatus(Config.KeySystem.SuccessText, Config.KeySystem.SuccessColor, "success")
         task.wait(1)
-        self.screen:Destroy()
+        if self.screen then
+            self.screen:Destroy()
+        end
+        self.checking = false
         LoadMainScript()
         return
     else
         self.attempts = (self.attempts or 0) + 1
         self:showStatus(Config.KeySystem.ErrorText, Config.KeySystem.ErrorColor, "error")
         self.keyBox:TweenPosition(self.keyBox.Position + UDim2.new(0.02,0,0,0),"Out","Quad",0.1,true,function()
-            self.keyBox:TweenPosition(UDim2.new(0.1,0,0.3,0),"Out","Quad",0.1,true)
+            if self.keyBox and self.keyBox.Parent then
+                self.keyBox:TweenPosition(UDim2.new(0.1,0,0.3,0),"Out","Quad",0.1,true)
+            end
         end)
         if Config.KeySystem.MaxAttempts and self.attempts >= Config.KeySystem.MaxAttempts then
             self:lockAll(Config.KeySystem.LockoutTime or 30)
         else
-            self:setButtonState(true)
+            self:animateButton("idle")
         end
+        self.checking = false
     end
 end
 
 function KeySystem:animateButton(state)
-    local btn=self.validateBtn
-    if state=="loading" then
-        btn.Text="Checking..."
-        btn.Active=false
-        btn.AutoButtonColor=false
-        btn.BackgroundTransparency=0.5
+    local btn = self.validateBtn
+    if state == "loading" then
+        btn.Text = "Checking..."
+        btn.Active = false
+        btn.AutoButtonColor = false
+        btn.BackgroundTransparency = 0.5
+    elseif state == "idle" then
+        self:setButtonState(false)
     else
         self:setButtonState(true)
     end
@@ -1056,8 +1075,9 @@ end
 
 function KeySystem:Start()
     self:CreateUI()
-    self.attempts=0
-    self.locked=false
+    self.attempts = 0
+    self.locked = false
+    self.checking = false
 end
 
 if Config.KeySystem.Enabled then
