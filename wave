@@ -1,0 +1,1069 @@
+-- =====================================================================
+--                  CONFIG - KEY SYSTEM + MAIN SCRIPT CALL
+-- =====================================================================
+
+local Config = Config or {}
+
+Config.KeySystem = {
+    Enabled = true,
+    
+    Title = "W4VE Keysystem",
+    TitleColor = Color3.fromRGB(100, 200, 255),
+    
+    PlaceholderText = "Enter key here...",
+    TextBoxSize = UDim2.new(0.8, 0, 0, 50),
+    TextBoxColor = Color3.fromRGB(30, 30, 40),
+    
+    ButtonText = "Validate",
+    ButtonColor = Color3.fromRGB(0, 170, 255),
+    ButtonSize = UDim2.new(0.8, 0, 0, 50),
+    
+    DiscordText = "https://discord.gg/GUAbAkPuTt",
+    DiscordColor = Color3.fromRGB(45, 134, 255),
+    
+    -- YOUR VALID KEYS (fill in yourself)
+    ValidKeys = {
+        "xD2425123",
+        "b5eontop5",
+        "B5EONTOP5",
+        -- add as many as you like
+    },
+    
+    -- optional protections
+    MaxAttempts = 3,          -- how many failed tries before lockout
+    LockoutTime = 30,         -- seconds to wait after max attempts
+    
+    SuccessText = "Key correct! Loading W4VE cheat...",
+    ErrorText = "Wrong key! Try again.",
+    LockedText = "Too many tries, please wait %d seconds.",
+    SuccessColor = Color3.fromRGB(0, 255, 100),
+    ErrorColor = Color3.fromRGB(255, 80, 80)
+}
+
+-- =====================================================================
+--                  KEY SYSTEM MENU
+-- =====================================================================
+
+local function LoadMainScript()
+    -- Inlined main cheat: UI + features (improved styling)
+    -- NOTE: this is a LocalScript-style cheat meant for Roblox runtime.
+
+    -- W4VE Cheat Suite (inlined)
+    -- Mit Target Lock Feature
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local UserInputService = game:GetService("UserInputService")
+    local Workspace = game:GetService("Workspace")
+
+    local LocalPlayer = Players.LocalPlayer
+    local Mouse = LocalPlayer:GetMouse()
+
+    -- Clean UI Colors
+    local W4VE_COLORS = {
+        Primary = Color3.fromRGB(36, 41, 54),
+        Secondary = Color3.fromRGB(45, 50, 63),
+        Background = Color3.fromRGB(20, 22, 28),
+        Text = Color3.fromRGB(230, 230, 235),
+        Accent = Color3.fromRGB(45, 134, 255)
+    }
+
+    -- UI Setup
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "W4VE"
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 520, 0, 540)
+    MainFrame.Position = UDim2.new(0.5, -260, 0.5, -270)
+    MainFrame.BackgroundColor3 = W4VE_COLORS.Background
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+    MainFrame.Parent = ScreenGui
+
+    -- fancy styling
+    local mfCorner = Instance.new("UICorner", MainFrame)
+    mfCorner.CornerRadius = UDim.new(0, 14)
+    local mfStroke = Instance.new("UIStroke", MainFrame)
+    mfStroke.Color = Color3.fromRGB(12,12,12)
+    mfStroke.Transparency = 0.6
+    mfStroke.Thickness = 2
+    local mfGradient = Instance.new("UIGradient", MainFrame)
+    mfGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(25,26,33)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(16,18,24))
+    }
+
+    -- Title
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Size = UDim2.new(1, 0, 0, 48)
+    Title.Position = UDim2.new(0, 0, 0, 0)
+    Title.BackgroundColor3 = W4VE_COLORS.Primary
+    Title.TextColor3 = W4VE_COLORS.Text
+    Title.Text = "W4VE"
+    Title.Font = Enum.Font.GothamBlack
+    Title.TextSize = 20
+    Title.BorderSizePixel = 0
+    Title.Parent = MainFrame
+    local tCorner = Instance.new("UICorner", Title)
+    tCorner.CornerRadius = UDim.new(0, 12)
+
+    -- Tabs Container
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Size = UDim2.new(1, -24, 1, -88)
+    TabContainer.Position = UDim2.new(0, 12, 0, 64)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.Parent = MainFrame
+
+    -- Create Tabs
+    local CombatTab = Instance.new("ScrollingFrame")
+    CombatTab.Name = "CombatTab"
+    CombatTab.Size = UDim2.new(1, 0, 1, 0)
+    CombatTab.BackgroundTransparency = 1
+    CombatTab.ScrollBarThickness = 6
+    CombatTab.ScrollBarImageColor3 = W4VE_COLORS.Accent
+    CombatTab.Visible = true
+    CombatTab.Parent = TabContainer
+
+    local VisualTab = Instance.new("ScrollingFrame")
+    VisualTab.Name = "VisualTab"
+    VisualTab.Size = UDim2.new(1, 0, 1, 0)
+    VisualTab.BackgroundTransparency = 1
+    VisualTab.Visible = false
+    VisualTab.Parent = TabContainer
+
+    local MovementTab = Instance.new("ScrollingFrame")
+    MovementTab.Name = "MovementTab"
+    MovementTab.Size = UDim2.new(1, 0, 1, 0)
+    MovementTab.BackgroundTransparency = 1
+    MovementTab.Visible = false
+    MovementTab.Parent = TabContainer
+
+    -- Tab Buttons
+    local function CreateTab(name, posX)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.32, 0, 0, 34)
+        btn.Position = UDim2.new(posX, 0, 0, 18)
+        btn.BackgroundColor3 = W4VE_COLORS.Secondary
+        btn.TextColor3 = W4VE_COLORS.Text
+        btn.Text = name
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 14
+        btn.Parent = MainFrame
+        local c = Instance.new("UICorner", btn)
+        c.CornerRadius = UDim.new(0, 10)
+
+        btn.MouseButton1Click:Connect(function()
+            CombatTab.Visible = (name == "Main")
+            VisualTab.Visible = (name == "ExpVsl")
+            MovementTab.Visible = (name == "MveSettings")
+        end)
+    end
+
+    CreateTab("Main", 0.03)
+    CreateTab("ExpVsl", 0.36)
+    CreateTab("MveSettings", 0.69)
+
+    -- UI Elements (checkbox & slider builders)
+    local function CreateCheckbox(name, parent, default)
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(1, 0, 0, 30)
+        frame.BackgroundTransparency = 1
+        frame.Parent = parent
+
+        local btn = Instance.new("TextButton")
+        btn.Name = name
+        btn.Size = UDim2.new(0, 20, 0, 20)
+        btn.Position = UDim2.new(0, 0, 0.5, -10)
+        btn.BackgroundColor3 = default and W4VE_COLORS.Accent or Color3.fromRGB(60, 60, 65)
+        btn.Text = ""
+        btn.BorderSizePixel = 0
+        btn.Parent = frame
+        local corner = Instance.new("UICorner", btn)
+        corner.CornerRadius = UDim.new(0, 6)
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -30, 1, 0)
+        label.Position = UDim2.new(0, 30, 0, 0)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = W4VE_COLORS.Text
+        label.Text = name
+        label.Font = Enum.Font.Gotham
+        label.TextSize = 14
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = frame
+
+        local enabled = default
+
+        btn.MouseButton1Click:Connect(function()
+            enabled = not enabled
+            btn.BackgroundColor3 = enabled and W4VE_COLORS.Accent or Color3.fromRGB(60, 60, 65)
+        end)
+
+        return {Frame = frame, GetValue = function() return enabled end}
+    end
+
+    local function CreateSlider(name, parent, min, max, default)
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(1, 0, 0, 50)
+        frame.BackgroundTransparency = 1
+        frame.Parent = parent
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0, 20)
+        label.Position = UDim2.new(0, 0, 0, 0)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = W4VE_COLORS.Text
+        label.Text = name .. ": " .. default
+        label.Font = Enum.Font.Gotham
+        label.TextSize = 14
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = frame
+
+        local track = Instance.new("Frame")
+        track.Size = UDim2.new(1, 0, 0, 6)
+        track.Position = UDim2.new(0, 0, 0, 30)
+        track.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+        track.BorderSizePixel = 0
+        track.Parent = frame
+        local tCorner = Instance.new("UICorner", track)
+        tCorner.CornerRadius = UDim.new(0, 6)
+
+        local fill = Instance.new("Frame")
+        fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+        fill.BackgroundColor3 = W4VE_COLORS.Accent
+        fill.BorderSizePixel = 0
+        fill.Parent = track
+
+        local thumb = Instance.new("TextButton")
+        thumb.Size = UDim2.new(0, 18, 0, 18)
+        thumb.Position = UDim2.new((default - min) / (max - min), -9, 0.5, -9)
+        thumb.BackgroundColor3 = W4VE_COLORS.Accent
+        thumb.Text = ""
+        thumb.BorderSizePixel = 0
+        thumb.Parent = frame
+        local thCorner = Instance.new("UICorner", thumb)
+        thCorner.CornerRadius = UDim.new(0, 10)
+
+        local value = default
+
+        thumb.MouseButton1Down:Connect(function()
+            local connection
+            connection = RunService.RenderStepped:Connect(function()
+                local mouseX = UserInputService:GetMouseLocation().X
+                local frameX = frame.AbsolutePosition.X
+                local width = frame.AbsoluteSize.X
+                local relative = (mouseX - frameX) / width
+                value = math.clamp(min + relative * (max - min), min, max)
+
+                fill.Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
+                thumb.Position = UDim2.new((value - min) / (max - min), -9, 0.5, -9)
+                label.Text = name .. ": " .. math.floor(value)
+            end)
+
+            local upConn
+            upConn = UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    connection:Disconnect()
+                    upConn:Disconnect()
+                end
+            end)
+        end)
+
+        return {Frame = frame, GetValue = function() return value end}
+    end
+
+    -- Add Layouts
+    local CombatLayout = Instance.new("UIListLayout")
+    CombatLayout.Padding = UDim.new(0, 8)
+    CombatLayout.Parent = CombatTab
+
+    local VisualLayout = Instance.new("UIListLayout")
+    VisualLayout.Padding = UDim.new(0, 8)
+    VisualLayout.Parent = VisualTab
+
+    local MovementLayout = Instance.new("UIListLayout")
+    MovementLayout.Padding = UDim.new(0, 8)
+    MovementLayout.Parent = MovementTab
+
+    -- COMBAT FEATURES
+    local AimbotToggle = CreateCheckbox("Aimbot", CombatTab, false)
+    local SilentAimToggle = CreateCheckbox("Silent Aim", CombatTab, false)
+    local TriggerbotToggle = CreateCheckbox("Triggerbot", CombatTab, false)
+    local RagebotToggle = CreateCheckbox("Ragebot", CombatTab, false)
+    local AutoShootToggle = CreateCheckbox("Auto Shoot", CombatTab, false)
+    local BulletTPToggle = CreateCheckbox("Bullet TP", CombatTab, false)
+
+    -- TARGET LOCK FEATURE
+    local TargetLockToggle = CreateCheckbox("Target Lock", CombatTab, false)
+    local HeadLockToggle = CreateCheckbox("Head Lock", CombatTab, true)
+
+    local FOVSlider = CreateSlider("FOV", CombatTab, 10, 200, 80)
+    local SmoothSlider = CreateSlider("Smoothness", CombatTab, 0.1, 1, 0.4)
+    local HitChanceSlider = CreateSlider("Hit Chance", CombatTab, 1, 100, 95)
+    local TPDistanceSlider = CreateSlider("TP Distance", CombatTab, 10, 300, 150)
+
+    -- VISUAL FEATURES
+    local ESPToggle = CreateCheckbox("ESP", VisualTab, false)
+    local BoxESPToggle = CreateCheckbox("Box ESP", VisualTab, false)
+    local TracersToggle = CreateCheckbox("Tracers", VisualTab, false)
+    local HealthBarToggle = CreateCheckbox("Health Bar", VisualTab, false)
+    local ChamsToggle = CreateCheckbox("Chams", VisualTab, false)
+    local GlowToggle = CreateCheckbox("Glow", VisualTab, false)
+
+    -- MOVEMENT FEATURES
+    local SpeedToggle = CreateCheckbox("Speed Hack", MovementTab, false)
+    local FlyToggle = CreateCheckbox("Fly(Auto Activeded)", MovementTab, false)
+    local NoClipToggle = CreateCheckbox("NoClip", MovementTab, false)
+    local HighJumpToggle = CreateCheckbox("High Jump", MovementTab, false)
+    local TeleportKillToggle = CreateCheckbox("Teleport Kill", MovementTab, false)
+
+    local SpeedSlider = CreateSlider("Speed", MovementTab, 16, 100, 50)
+    local FlySpeedSlider = CreateSlider("Fly Speed", MovementTab, 10, 100, 50)
+    local JumpSlider = CreateSlider("Jump Power", MovementTab, 50, 200, 100)
+
+    -- CHEAT CONFIG (renamed to avoid collision with outer Config)
+    local CheatConfig = {
+        Aimbot = false,
+        SilentAim = false,
+        Triggerbot = false,
+        Ragebot = false,
+        AutoShoot = false,
+        BulletTP = false,
+
+        TargetLock = false,
+        HeadLock = true,
+        LockKey = "T",
+
+        FOV = 80,
+        Smoothness = 0.4,
+        HitChance = 95,
+        TPDistance = 150,
+
+        ESP = false,
+        BoxESP = false,
+        Tracers = false,
+        HealthBar = false,
+        Chams = false,
+        Glow = false,
+
+        Speed = false,
+        Fly = false,
+        NoClip = false,
+        HighJump = false,
+        TeleportKill = false,
+        SpeedValue = 50,
+        FlySpeed = 50,
+        JumpPower = 100
+    }
+
+    -- CHEAT FUNCTIONS
+    local Cheat = {}
+
+    function Cheat:IsEnemy(player)
+        if player == LocalPlayer then return false end
+        if not player.Character then return false end
+
+        if game:FindService("Teams") and LocalPlayer.Team then
+            return player.Team ~= LocalPlayer.Team
+        end
+
+        return true
+    end
+
+    function Cheat:GetClosestTarget()
+        local closest = nil
+        local closestDist = CheatConfig.FOV
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if self:IsEnemy(player) and player.Character then
+                local head = player.Character:FindFirstChild("Head")
+                if head then
+                    local screenPos = Workspace.CurrentCamera:WorldToScreenPoint(head.Position)
+                    if screenPos.Z > 0 then
+                        local dist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                        if dist < closestDist then
+                            closest = player
+                            closestDist = dist
+                        end
+                    end
+                end
+            end
+        end
+
+        return closest
+    end
+
+    -- AIMBOT
+    function Cheat:Aimbot()
+        if not CheatConfig.Aimbot then return end
+
+        local target = self:GetClosestTarget()
+        if not target or not target.Character then return end
+
+        local head = target.Character:FindFirstChild("Head")
+        if not head then return end
+
+        local camera = Workspace.CurrentCamera
+        local targetCF = CFrame.lookAt(camera.CFrame.Position, head.Position)
+        local smoothCF = camera.CFrame:Lerp(targetCF, CheatConfig.Smoothness)
+
+        camera.CFrame = smoothCF
+    end
+
+    -- TARGET LOCK
+    function Cheat:TargetLock()
+        if not CheatConfig.TargetLock then return end
+
+        local target = self:GetClosestTarget()
+        if not target or not target.Character then return end
+
+        local camera = Workspace.CurrentCamera
+        local aimPart = nil
+
+        if CheatConfig.HeadLock then
+            aimPart = target.Character:FindFirstChild("Head")
+        else
+            aimPart = target.Character:FindFirstChild("HumanoidRootPart") or 
+                      target.Character:FindFirstChild("Torso") or
+                      target.Character:FindFirstChild("UpperTorso")
+        end
+
+        if not aimPart then return end
+
+        local targetCF = CFrame.lookAt(camera.CFrame.Position, aimPart.Position)
+        camera.CFrame = camera.CFrame:Lerp(targetCF, 0.8)
+
+        if CheatConfig.AutoShoot then
+            pcall(function() mouse1click() end)
+        end
+    end
+
+    -- RAGEBOT
+    function Cheat:Ragebot()
+        if not CheatConfig.Ragebot then return end
+
+        for _, player in pairs(Players:GetPlayers()) do
+            if self:IsEnemy(player) and player.Character then
+                local humanoid = player.Character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    if math.random(1, 100) <= CheatConfig.HitChance then
+                        humanoid.Health = 0
+
+                        if CheatConfig.AutoShoot then
+                            for i = 1, 3 do
+                                pcall(function() mouse1click() end)
+                                wait(0.05)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- BULLET TP
+    function Cheat:BulletTP()
+        if not CheatConfig.BulletTP then return end
+
+        local char = LocalPlayer.Character
+        if not char then return end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+
+        local target = self:GetClosestTarget()
+        if not target or not target.Character then return end
+
+        local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
+        if not targetRoot then return end
+
+        local direction = (targetRoot.Position - root.Position).Unit
+        local tpPos = targetRoot.Position - (direction * CheatConfig.TPDistance)
+
+        root.CFrame = CFrame.new(tpPos)
+    end
+
+    -- FLY HACK (shared helpers)
+    local TweenService = game:GetService("TweenService")
+    local flying = false
+    local alignPosition = nil
+    local alignOrientation = nil
+    local rootPart = nil
+    local noclipConn = nil
+    local flyConn = nil
+    local jumpConn = nil
+
+    local function setupFly()
+        local character = LocalPlayer.Character
+        if not character then return end
+        rootPart = character:WaitForChild("HumanoidRootPart")
+
+        if alignPosition then alignPosition:Destroy() end
+        if alignOrientation then alignOrientation:Destroy() end
+
+        local rootAttachment0 = Instance.new("Attachment")
+        rootAttachment0.Name = "FlyAttach0"
+        rootAttachment0.Parent = rootPart
+
+        local rootAttachment1 = Instance.new("Attachment")
+        rootAttachment1.Name = "FlyAttach1"
+        rootAttachment1.Parent = rootPart
+
+        alignPosition = Instance.new("AlignPosition")
+        alignPosition.Name = "FlyAlignPos"
+        alignPosition.Attachment0 = rootAttachment0
+        alignPosition.Attachment1 = rootAttachment1
+        alignPosition.MaxForce = 10000
+        alignPosition.MaxVelocity = 200
+        alignPosition.Responsiveness = 200
+        alignPosition.Parent = rootPart
+
+        alignOrientation = Instance.new("AlignOrientation")
+        alignOrientation.Name = "FlyAlignOri"
+        alignOrientation.Attachment0 = rootAttachment0
+        alignOrientation.Attachment1 = rootAttachment1
+        alignOrientation.MaxTorque = 10000
+        alignOrientation.MaxAngularVelocity = math.huge
+        alignOrientation.Responsiveness = 200
+        alignOrientation.PrimaryAxisOnly = false
+        alignOrientation.Parent = rootPart
+
+        noclipConn = RunService.Stepped:Connect(function()
+            if rootPart and rootPart.Parent then
+                for _, part in pairs(character:GetChildren()) do
+                    if part:IsA("BasePart") and part ~= rootPart then
+                        part.CanCollide = false
+                    end
+                end
+                rootPart.CanCollide = false
+            end
+        end)
+    end
+
+    local function destroyFly()
+        if alignPosition then alignPosition:Destroy() end
+        if alignOrientation then alignOrientation:Destroy() end
+        if noclipConn then noclipConn:Disconnect() end
+        if flyConn then flyConn:Disconnect() end
+        flying = false
+    end
+
+    local function updateFly()
+        if not flying or not rootPart or not Workspace.CurrentCamera then return end
+
+        local moveVector = Vector3.new(0, 0, 0)
+        local camCFrame = Workspace.CurrentCamera.CFrame
+
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+            moveVector = moveVector + camCFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+            moveVector = moveVector - camCFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+            moveVector = moveVector - camCFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+            moveVector = moveVector + camCFrame.RightVector
+        end
+
+        local speed = CheatConfig.FlySpeed or 80
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            moveVector = moveVector + camCFrame.UpVector * 1.5
+            speed = (CheatConfig.FlySpeed or 80) * 1.8
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+            moveVector = moveVector - camCFrame.UpVector
+        end
+
+        if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+            speed = (CheatConfig.FlySpeed or 80) * 1.2
+        end
+
+        if moveVector.Magnitude > 0 then
+            moveVector = moveVector.Unit * speed
+        end
+
+        local targetCFrame = camCFrame + camCFrame.LookVector * 5
+        targetCFrame = CFrame.new(targetCFrame.Position + moveVector * 0.1, targetCFrame.Position + camCFrame.LookVector)
+
+        if alignPosition and rootPart then
+            alignPosition.Position = targetCFrame.Position
+        end
+    end
+
+    local function onJump()
+        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+        if humanoid and not flying then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+
+    -- attach Fly method to Cheat so UI calls work
+    function Cheat:Fly()
+        flying = not flying
+        if flying then
+            setupFly()
+            flyConn = RunService.Heartbeat:Connect(updateFly)
+        else
+            destroyFly()
+        end
+    end
+
+    -- SPEED, TELEPORT KILL, NOCLIP, HIGHJUMP, ESP (minimal implementations)
+    function Cheat:Speed()
+        if not CheatConfig.Speed then return end
+        local char = LocalPlayer.Character
+        if not char then return end
+        local humanoid = char:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = CheatConfig.SpeedValue
+        end
+    end
+
+    function Cheat:TeleportKill()
+        if not CheatConfig.TeleportKill then return end
+        for _, player in pairs(Players:GetPlayers()) do
+            if self:IsEnemy(player) and player.Character then
+                local myChar = LocalPlayer.Character
+                local targetChar = player.Character
+                if myChar and targetChar then
+                    local myRoot = myChar:FindFirstChild("HumanoidRootPart")
+                    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+                    if myRoot and targetRoot then
+                        myRoot.CFrame = CFrame.new(targetRoot.Position + Vector3.new(0, 5, 0))
+                        local humanoid = targetChar:FindFirstChild("Humanoid")
+                        if humanoid then
+                            humanoid.Health = 0
+                        end
+                        wait(0.1)
+                    end
+                end
+            end
+        end
+    end
+
+    function Cheat:NoClip()
+        if not CheatConfig.NoClip then return end
+        local char = LocalPlayer.Character
+        if not char then return end
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+
+    function Cheat:HighJump()
+        if not CheatConfig.HighJump then return end
+        local char = LocalPlayer.Character
+        if not char then return end
+        local humanoid = char:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = CheatConfig.JumpPower
+        end
+    end
+
+    function Cheat:ESP()
+        if not CheatConfig.ESP then return end
+        -- minimal placeholder for ESP
+    end
+
+    -- KEYBINDS
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if processed then return end
+
+        if input.KeyCode == Enum.KeyCode.Q then
+            Cheat:BulletTP()
+        elseif input.KeyCode == Enum.KeyCode.F then
+            Cheat:Fly()
+        elseif input.KeyCode == Enum.KeyCode.G then
+            Cheat:TeleportKill()
+        elseif input.KeyCode == Enum.KeyCode.T then
+            if CheatConfig.TargetLock then
+                Cheat:TargetLock()
+            end
+        elseif input.KeyCode == Enum.KeyCode.Insert then
+            MainFrame.Visible = not MainFrame.Visible
+        end
+    end)
+
+    -- MAIN LOOP
+    RunService.RenderStepped:Connect(function()
+        -- Update config from UI
+        CheatConfig.Aimbot = AimbotToggle.GetValue()
+        CheatConfig.SilentAim = SilentAimToggle.GetValue()
+        CheatConfig.Triggerbot = TriggerbotToggle.GetValue()
+        CheatConfig.Ragebot = RagebotToggle.GetValue()
+        CheatConfig.AutoShoot = AutoShootToggle.GetValue()
+        CheatConfig.BulletTP = BulletTPToggle.GetValue()
+
+        CheatConfig.TargetLock = TargetLockToggle.GetValue()
+        CheatConfig.HeadLock = HeadLockToggle.GetValue()
+
+        CheatConfig.FOV = FOVSlider.GetValue()
+        CheatConfig.Smoothness = SmoothSlider.GetValue()
+        CheatConfig.HitChance = HitChanceSlider.GetValue()
+        CheatConfig.TPDistance = TPDistanceSlider.GetValue()
+
+        CheatConfig.ESP = ESPToggle.GetValue()
+        CheatConfig.BoxESP = BoxESPToggle.GetValue()
+        CheatConfig.Tracers = TracersToggle.GetValue()
+        CheatConfig.HealthBar = HealthBarToggle.GetValue()
+        CheatConfig.Chams = ChamsToggle.GetValue()
+        CheatConfig.Glow = GlowToggle.GetValue()
+
+        CheatConfig.Speed = SpeedToggle.GetValue()
+        CheatConfig.Fly = FlyToggle.GetValue()
+        CheatConfig.NoClip = NoClipToggle.GetValue()
+        CheatConfig.HighJump = HighJumpToggle.GetValue()
+        CheatConfig.TeleportKill = TeleportKillToggle.GetValue()
+        CheatConfig.SpeedValue = SpeedSlider.GetValue()
+        CheatConfig.FlySpeed = FlySpeedSlider.GetValue()
+        CheatConfig.JumpPower = JumpSlider.GetValue()
+
+        -- Apply cheats
+        if CheatConfig.Ragebot then
+            Cheat:Ragebot()
+        end
+
+        if CheatConfig.Aimbot and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+            Cheat:Aimbot()
+        end
+
+        if CheatConfig.TargetLock and UserInputService:IsKeyDown(Enum.KeyCode.T) then
+            Cheat:TargetLock()
+        end
+
+        if CheatConfig.Speed then
+            Cheat:Speed()
+        end
+
+        if CheatConfig.Fly and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            Cheat:Fly()
+        end
+
+        if CheatConfig.NoClip then
+            Cheat:NoClip()
+        end
+
+        if CheatConfig.HighJump then
+            Cheat:HighJump()
+        end
+
+        if CheatConfig.ESP then
+            Cheat:ESP()
+        end
+    end)
+
+    -- Water Effect (subtle)
+    local waterEffect = Instance.new("Frame")
+    waterEffect.Size = UDim2.new(1, 0, 1, 0)
+    waterEffect.BackgroundTransparency = 1
+    waterEffect.ZIndex = -1
+    waterEffect.Parent = MainFrame
+
+    for i = 1, 16 do
+        local drop = Instance.new("Frame")
+        drop.Size = UDim2.new(0, 2, 0, math.random(8, 18))
+        drop.Position = UDim2.new(math.random() * 0.9, 0, -0.1, 0)
+        drop.BackgroundColor3 = W4VE_COLORS.Accent
+        drop.BackgroundTransparency = 0.75
+        drop.BorderSizePixel = 0
+        drop.ZIndex = -1
+        drop.Parent = waterEffect
+
+        spawn(function()
+            while drop and drop.Parent do
+                local pos = drop.Position
+                local newY = pos.Y.Scale + 0.006
+                if newY > 1.1 then
+                    drop.Position = UDim2.new(math.random() * 0.9, 0, -0.1, 0)
+                else
+                    drop.Position = UDim2.new(pos.X.Scale, pos.X.Offset, newY, pos.Y.Offset)
+                end
+                wait(0.09)
+            end
+        end)
+    end
+
+    print("W4VE inlined: UI loaded.")
+end
+
+-- prepare a lookup table for faster validation, normalized to uppercase
+local ValidKeySet = {}
+for _,k in ipairs(Config.KeySystem.ValidKeys) do
+    ValidKeySet[k:upper()] = true
+end
+
+-- encapsulate key system into an object for clarity
+local KeySystem = {}
+
+function KeySystem:CreateUI()
+    local CoreGui = game:GetService("CoreGui")
+
+    self.screen = Instance.new("ScreenGui")
+    self.screen.Name = "W4VEKeySystem"
+    self.screen.ResetOnSpawn = false
+    self.screen.Parent = CoreGui
+
+    local mf = Instance.new("Frame")
+    mf.Size = UDim2.new(0, 420, 0, 340)
+    mf.Position = UDim2.new(0.5, -210, 0.5, -170)
+    mf.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+    mf.BorderSizePixel = 0
+    mf.Active = true
+    mf.Draggable = true
+    mf.Size = UDim2.new(0,0,0,0) -- start collapsed for entrance animation
+    mf.Parent = self.screen
+    self.mainFrame = mf
+
+    task.spawn(function()
+        wait(0.1)
+        mf:TweenSize(UDim2.new(0,420,0,340), "Out", "Back", 0.35, true)
+    end)
+
+    local gradient = Instance.new("UIGradient", mf)
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 60)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25))
+    }
+
+    -- optional audio feedback
+    local successSound = Instance.new("Sound", mf)
+    successSound.SoundId = "rbxassetid://142376088" -- pleasant chime
+    successSound.Volume = 0.7
+    self.successSound = successSound
+
+    local errorSound = Instance.new("Sound", mf)
+    errorSound.SoundId = "rbxassetid://15666462" -- short beep
+    errorSound.Volume = 0.7
+    self.errorSound = errorSound
+
+    local Corner = Instance.new("UICorner", mf)
+    Corner.CornerRadius = UDim.new(0, 18)
+
+    local Shadow = Instance.new("UIStroke", mf)
+    Shadow.Color = Color3.fromRGB(0, 0, 0)
+    Shadow.Transparency = 0.7
+    Shadow.Thickness = 6
+    Shadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -40, 0, 60)
+    title.Position = UDim2.new(0, 0, 0, 5)
+    title.BackgroundTransparency = 1
+    title.Text = Config.KeySystem.Title
+    title.TextColor3 = Config.KeySystem.TitleColor
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 34
+    title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    title.TextStrokeTransparency = 0.7
+    title.Parent = mf
+    self.titleLabel = title
+
+    local close = Instance.new("TextButton")
+    close.Size = UDim2.new(0, 30, 0, 30)
+    close.Position = UDim2.new(1, -35, 0, 5)
+    close.BackgroundTransparency = 1
+    close.Text = "✕"
+    close.TextColor3 = Color3.fromRGB(200, 200, 200)
+    close.Font = Enum.Font.GothamBold
+    close.TextSize = 24
+    close.Parent = mf
+    self.closeBtn = close
+
+    close.MouseEnter:Connect(function()
+        close.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end)
+    close.MouseLeave:Connect(function()
+        close.TextColor3 = Color3.fromRGB(200, 200, 200)
+    end)
+    close.MouseButton1Click:Connect(function()
+        mf:TweenSize(UDim2.new(0,0,0,0), "In", "Quad", 0.25, true, function()
+            self.screen:Destroy()
+        end)
+    end)
+
+    local box = Instance.new("TextBox")
+    box.Size = Config.KeySystem.TextBoxSize
+    box.Position = UDim2.new(0.1, 0, 0.3, 0)
+    box.BackgroundColor3 = Config.KeySystem.TextBoxColor
+    box.TextColor3 = Color3.fromRGB(220, 220, 255)
+    box.PlaceholderText = Config.KeySystem.PlaceholderText
+    box.Text = ""
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 20
+    box.ClearTextOnFocus = false
+    box.Parent = mf
+    self.keyBox = box
+
+    local BoxCorner = Instance.new("UICorner", box)
+    BoxCorner.CornerRadius = UDim.new(0, 12)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = Config.KeySystem.ButtonSize
+    btn.Position = UDim2.new(0.1, 0, 0.55, 0)
+    btn.BackgroundColor3 = Config.KeySystem.ButtonColor
+    btn.Text = Config.KeySystem.ButtonText
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 22
+    btn.Parent = mf
+    self.validateBtn = btn
+
+    local BtnCorner = Instance.new("UICorner", btn)
+    BtnCorner.CornerRadius = UDim.new(0, 12)
+
+    local btnGradient = Instance.new("UIGradient", btn)
+    btnGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 220))
+    }
+
+    local status = Instance.new("TextLabel")
+    status.Size = UDim2.new(0.8, 0, 0, 40)
+    status.Position = UDim2.new(0.1, 0, 0.72, 0)
+    status.BackgroundTransparency = 1
+    status.Text = ""
+    status.TextColor3 = Color3.fromRGB(255, 100, 100)
+    status.Font = Enum.Font.Gotham
+    status.TextSize = 18
+    status.TextWrapped = true
+    status.Parent = mf
+    self.statusLabel = status
+
+    local disc = Instance.new("TextLabel")
+    disc.Size = UDim2.new(0.8, 0, 0, 40)
+    disc.Position = UDim2.new(0.1, 0, 0.88, 0)
+    disc.BackgroundTransparency = 1
+    disc.Text = Config.KeySystem.DiscordText
+    disc.TextColor3 = Config.KeySystem.DiscordColor
+    disc.Font = Enum.Font.GothamSemibold
+    disc.TextSize = 20
+    disc.TextWrapped = true
+    disc.Parent = mf
+    self.discordLabel = disc
+
+    -- hover effect for the button
+    btn.MouseEnter:Connect(function()
+        btn:TweenSize(UDim2.new(0.82, 0, 0, 52), "Out", "Quad", 0.15, true)
+        btn.BackgroundColor3 = Config.KeySystem.ButtonColor:Lerp(Color3.fromRGB(0, 200, 255), 0.3)
+    end)
+    btn.MouseLeave:Connect(function()
+        btn:TweenSize(Config.KeySystem.ButtonSize, "Out", "Quad", 0.15, true)
+        btn.BackgroundColor3 = Config.KeySystem.ButtonColor
+    end)
+
+    -- input hooks
+    box.Changed:Connect(function(prop)
+        if prop == "Text" then
+            self:setButtonState(box.Text:match("%S") ~= nil)
+        end
+    end)
+
+    btn.MouseButton1Click:Connect(function() self:CheckKey() end)
+    box.FocusLost:Connect(function(enter) if enter then self:CheckKey() end end)
+
+    self:setButtonState(false)
+end
+
+function KeySystem:setButtonState(enabled)
+    local btn = self.validateBtn
+    btn.Active = enabled
+    btn.AutoButtonColor = enabled
+    btn.BackgroundTransparency = enabled and 0 or 0.5
+    btn.Text = enabled and Config.KeySystem.ButtonText or "Locked"
+end
+
+function KeySystem:showStatus(msg, col, sound)
+    local s = self.statusLabel
+    s.Text = msg
+    s.TextColor3 = col
+    s.TextTransparency = 1
+    s:TweenTextTransparency(0, "Out", "Quad", 0.2, true)
+    if sound == "success" and self.successSound then
+        self.successSound:Play()
+    elseif sound == "error" and self.errorSound then
+        self.errorSound:Play()
+    end
+    delay(2, function()
+        s:TweenTextTransparency(1, "Out", "Quad", 0.4, true)
+    end)
+end
+
+function KeySystem:lockAll(duration)
+    self.locked = true
+    self:setButtonState(false)
+    self.keyBox.TextEditable = false
+    self:showStatus(string.format(Config.KeySystem.LockedText, duration), Config.KeySystem.ErrorColor)
+    delay(duration, function()
+        self.locked = false
+        self.attempts = 0
+        self:setButtonState(true)
+        self.keyBox.TextEditable = true
+        self.statusLabel.Text = ""
+    end)
+end
+
+function KeySystem:CheckKey()
+    if self.locked then return end
+    local entered = self.keyBox.Text:upper():gsub("%s+","")
+    if entered == "" then
+        self:showStatus("Please enter a key.", Config.KeySystem.ErrorColor)
+        return
+    end
+
+    self:animateButton("loading")
+    task.wait(0.3)
+
+    if ValidKeySet[entered] then
+        self:showStatus(Config.KeySystem.SuccessText, Config.KeySystem.SuccessColor, "success")
+        task.wait(1)
+        self.screen:Destroy()
+        LoadMainScript()
+        return
+    else
+        self.attempts = (self.attempts or 0) + 1
+        self:showStatus(Config.KeySystem.ErrorText, Config.KeySystem.ErrorColor, "error")
+        self.keyBox:TweenPosition(self.keyBox.Position + UDim2.new(0.02,0,0,0),"Out","Quad",0.1,true,function()
+            self.keyBox:TweenPosition(UDim2.new(0.1,0,0.3,0),"Out","Quad",0.1,true)
+        end)
+        if Config.KeySystem.MaxAttempts and self.attempts >= Config.KeySystem.MaxAttempts then
+            self:lockAll(Config.KeySystem.LockoutTime or 30)
+        else
+            self:setButtonState(true)
+        end
+    end
+end
+
+function KeySystem:animateButton(state)
+    local btn=self.validateBtn
+    if state=="loading" then
+        btn.Text="Checking..."
+        btn.Active=false
+        btn.AutoButtonColor=false
+        btn.BackgroundTransparency=0.5
+    else
+        self:setButtonState(true)
+    end
+end
+
+function KeySystem:Start()
+    self:CreateUI()
+    self.attempts=0
+    self.locked=false
+end
+
+if Config.KeySystem.Enabled then
+    KeySystem:Start()
+else
+    LoadMainScript()
+end
+
+-- If the key system is disabled, the main script runs directly
