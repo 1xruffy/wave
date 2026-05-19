@@ -1,13 +1,10 @@
--- =====================================================================
---                  CONFIG - KEY SYSTEM + MAIN SCRIPT CALL
--- =====================================================================
-
+- this was ai and made by a fat racoon looking ass looking like joe bidens left nut and toe "who buying this twin" fucxk off nigger dirty black boy
 local Config = Config or {}
 
 Config.KeySystem = {
     Enabled = true,
     
-    Title = "W4VE Keysystem",
+    Title = "Wave nigger raper system",
     TitleColor = Color3.fromRGB(100, 200, 255),
     
     PlaceholderText = "Enter key here...",
@@ -23,10 +20,10 @@ Config.KeySystem = {
     
     -- YOUR VALID KEYS (fill in yourself)
     ValidKeys = {
-        "xD2425123",
-        "b5eontop5",
-        "B5EONTOP5",
-        -- add as many as you like
+        "rapem123",
+        "nigger123",
+        "jay is a faggot123",
+        "rapeMEDADYFUCKMEOVERANDOVERAGAINTILLITBURTSOUTCERAM",
     },
     
     -- optional protections
@@ -41,7 +38,7 @@ Config.KeySystem = {
 }
 
 -- =====================================================================
---                  KEY SYSTEM MENU
+--                  KEY SYSTEM MENU- also known as faggot simualtor 1
 -- =====================================================================
 
 local function LoadMainScript()
@@ -104,7 +101,7 @@ local function LoadMainScript()
     Title.Position = UDim2.new(0, 0, 0, 0)
     Title.BackgroundColor3 = W4VE_COLORS.Primary
     Title.TextColor3 = W4VE_COLORS.Text
-    Title.Text = "W4VE"
+    Title.Text = "W4V3=ADKJHNBASKDBHASKJD U TYHINK UR ALL COOL WAITH 3AO-VF LIKE BRO U GOT JUAS T RAITOIEDN ALIKE DONT UEVER E5TT AE RSAY 31V EW ADAGAIN LLIKE UR LITTELEYT BLACK LOL"
     Title.Font = Enum.Font.GothamBlack
     Title.TextSize = 20
     Title.BorderSizePixel = 0
